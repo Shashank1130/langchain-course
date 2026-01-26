@@ -31,7 +31,9 @@ react_prompt_with_format_instructions = PromptTemplate(
 
 agent = create_agent(model=llm, tools=tools, system_prompt=react_prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-chain = agent_executor
+extract_output = RunnableLambda(lambda x: x["output"]) # -> Extract the "output" from the output dictionary of the agent response
+parse_output = RunnableLambda(lambda x: output_parser.parse(x)) # -> Pasrse the extracted "output" into a StructuredPydantic Model
+chain = agent_executor | extract_output | parse_output
 
 
 def main():
